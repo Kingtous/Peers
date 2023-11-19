@@ -14,15 +14,19 @@
 import 'package:go_router/go_router.dart';
 import 'package:keta_peers/business/ui/home/home.dart';
 import 'package:keta_peers/main.dart';
+import 'package:logger/logger.dart';
 
 const kDefaultStunServer = "stun:peers.signaling.ketanetwork.cc:3478";
+const kDefaultSignalingServer = "https://peers.signaling.ketanetwork.cc";
+const kPageHome = '/home';
+final kLogger = Logger();
 final kRoutes = GoRouter(routes: <GoRoute>[
   GoRoute(
     path: '/',
     builder: (context, state) => const WelcomePage(title: 'Peers'),
   ),
   GoRoute(
-    path: '/home',
+    path: kPageHome,
     builder: (context, state) => const Home(),
   ),
 ]);

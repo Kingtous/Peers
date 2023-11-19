@@ -13,6 +13,9 @@
 // limitations under the License.
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:get_it/get_it.dart';
+import 'package:go_router/go_router.dart';
+import 'package:keta_peers/constants.dart';
+import 'package:keta_peers/services/signaling_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 final it = GetIt.instance;
@@ -27,5 +30,5 @@ Future initdSvcs(void _, BuildContext? context) async {
   if (context == null) {
     return;
   }
-   
+  context.replace(kPageHome);
 }

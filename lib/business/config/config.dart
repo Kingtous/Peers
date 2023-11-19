@@ -29,7 +29,7 @@ class AppConfig {
   late String stunServer;
 
   static late AppConfig _config;
-  static get instance => _config;
+  static AppConfig get instance => _config;
   static void init() async {
     final config = it.get<SharedPreferences>().getString(kConfigKey) ?? "{}";
     final Map<String, dynamic> confMap = jsonDecode(config);
