@@ -15,6 +15,7 @@ import 'dart:async';
 
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:keta_peers/business/config/config.dart';
+import 'package:keta_peers/business/models/payload.dart';
 import 'package:keta_peers/constants.dart';
 import 'package:keta_peers/services/ice_service.dart';
 import 'package:socket_io_client/socket_io_client.dart';
@@ -35,21 +36,15 @@ class SignalingClient {
             .setTransports(['websocket'])
             .setTimeout(5000)
             .setExtraHeaders({'client': 'peers'})
-            .setAuth({
-              'token': kSignalingAuthKey
-            })
+            .setAuth({'token': kSignalingAuthKey})
             .build());
     _signalingSocket.onConnect(_onConnect);
     _signalingSocket.onDisconnect(_onDisconnect);
     _signalingSocket.onConnect((data) => null);
     _signalingSocket.on('message', _onMessage);
     kLogger.d('Signaling server: connecting $kDefaultSignalingServer');
-    Future.delayed(const Duration(seconds: 3), () {
-      print('connected: ${_signalingSocket.connected}');
-    });
     final conn = await connectICEBackend();
     _iceConnection = conn;
-
   }
 
   void dispose() {
@@ -73,7 +68,11 @@ class SignalingClient {
     kLogger.d('recv $data');
   }
 
-  sendToPeer(data) {
-    _signalingSocket.emit('messageOne', data);
+  void sendPayload(Payload payload, {String target = 'all'}) {
+    if (target == 'all') {
+      emitBroadcastMessage(_signalingSocket, peerId, payload);
+    } else {
+      emitMessageToPeer(_signalingSocket, peerId, target, payload);
+    }
   }
 }

@@ -14,7 +14,6 @@
 
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:keta_peers/constants.dart';
 import 'package:keta_peers/services.dart';
