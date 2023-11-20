@@ -13,11 +13,13 @@
 // limitations under the License.
 import 'package:go_router/go_router.dart';
 import 'package:keta_peers/business/ui/home/home.dart';
+import 'package:keta_peers/business/ui/home/index.dart';
 import 'package:keta_peers/main.dart';
 import 'package:logger/logger.dart';
 
 const kDefaultStunServer = "stun:peers.signaling.ketanetwork.cc:3478";
 const kDefaultSignalingServer = "https://peers.signaling.ketanetwork.cc";
+const kPageIndex = '/index';
 const kPageHome = '/home';
 final kLogger = Logger();
 final kRoutes = GoRouter(routes: <GoRoute>[
@@ -26,7 +28,11 @@ final kRoutes = GoRouter(routes: <GoRoute>[
     builder: (context, state) => const WelcomePage(title: 'Peers'),
   ),
   GoRoute(
+    path: kPageIndex,
+    builder: (context, state) => const IndexPage(),
+  ),
+  GoRoute(
     path: kPageHome,
-    builder: (context, state) => const Home(),
+    builder: (context, state) => const ContactPage(),
   ),
 ]);

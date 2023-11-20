@@ -22,6 +22,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 part 'config.g.dart';
 
 const kConfigKey = 'conf';
+const kSignalingAuthKey = "PEERS_SIGNALING";
 
 @JsonSerializable()
 class AppConfig {
@@ -30,7 +31,7 @@ class AppConfig {
 
   static late AppConfig _config;
   static AppConfig get instance => _config;
-  static void init() async {
+  static Future<void> init() async {
     final config = it.get<SharedPreferences>().getString(kConfigKey) ?? "{}";
     final Map<String, dynamic> confMap = jsonDecode(config);
     _config = fromJson(confMap);

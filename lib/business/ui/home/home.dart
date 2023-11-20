@@ -1,29 +1,79 @@
-// Copyright 2023 a1147
-// 
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-// 
-//     http://www.apache.org/licenses/LICENSE-2.0
-// 
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+import 'dart:async';
 
-import 'package:flutter/material.dart';
+import 'package:fluent_ui/fluent_ui.dart';
+import 'package:flutter_webrtc/flutter_webrtc.dart';
+import 'package:get/get.dart';
+import 'package:keta_peers/constants.dart';
+import 'package:keta_peers/services.dart';
+import 'package:keta_peers/services/signaling_service.dart';
 
-class Home extends StatefulWidget {
-  const Home({super.key});
+class ContactPage extends StatefulWidget {
+  const ContactPage({super.key});
 
   @override
-  State<Home> createState() => _HomeState();
+  State<ContactPage> createState() => _ContactPageState();
 }
 
-class _HomeState extends State<Home> {
+class _ContactPageState extends State<ContactPage> {
+  SignalingClient get client => it.get();
+  late RTCVideoRenderer localRenderer;
+
+  @override
+  void initState() {
+    super.initState();
+    final r = RTCVideoRenderer();
+    localRenderer = r;
+    r.initialize().then((_) {
+      kLogger.d('RTCVideoRenderer initialized');
+      r.srcObject = client.iceConnection!.stream;
+      setState(() {});
+    });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    localRenderer.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return const Placeholder();
+    return Stack(
+      children: [
+        RTCVideoView(
+          localRenderer,
+          placeholderBuilder: (context) => Center(
+            child: SizedBox(
+              width: 100,
+              height: 100,
+              child: ProgressRing(),
+            ),
+          ),
+        ),
+        Row(
+          children: [
+            Flexible(
+              flex: 2,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.grey
+                ),
+                child: Column(
+                children: [
+              TextBox()
+                ],
+                          ),
+              )),
+            Flexible(
+              flex: 5,
+              child: Column(
+              children: [
+
+              ],
+            )),
+          ],
+        )
+      ],
+    );
   }
 }

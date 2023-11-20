@@ -11,6 +11,10 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+import 'dart:async';
+
+import 'package:flutter_webrtc/flutter_webrtc.dart';
+import 'package:keta_peers/business/config/config.dart';
 import 'package:keta_peers/constants.dart';
 import 'package:keta_peers/services/ice_service.dart';
 import 'package:socket_io_client/socket_io_client.dart';
@@ -21,17 +25,31 @@ class SignalingClient {
   final RxBool _ready = false.obs;
   RxBool get ready => _ready;
   IceConnection? _iceConnection;
+  IceConnection? get iceConnection => _iceConnection;
   late String peerId;
-  void init(String peerId) {
-    _signalingSocket = io(kDefaultSignalingServer);
+  Future<void> init(String peerId) async {
+    this.peerId = peerId;
+    _signalingSocket = io(
+        kDefaultSignalingServer,
+        OptionBuilder()
+            .setTransports(['websocket'])
+            .setTimeout(5000)
+            .setExtraHeaders({'client': 'peers'})
+            .setAuth({
+              'token': kSignalingAuthKey
+            })
+            .build());
     _signalingSocket.onConnect(_onConnect);
     _signalingSocket.onDisconnect(_onDisconnect);
     _signalingSocket.onConnect((data) => null);
     _signalingSocket.on('message', _onMessage);
-    connectICEBackend().then((value) {
-      _iceConnection = value;
+    kLogger.d('Signaling server: connecting $kDefaultSignalingServer');
+    Future.delayed(const Duration(seconds: 3), () {
+      print('connected: ${_signalingSocket.connected}');
     });
-    this.peerId = peerId;
+    final conn = await connectICEBackend();
+    _iceConnection = conn;
+
   }
 
   void dispose() {
@@ -40,6 +58,7 @@ class SignalingClient {
   }
 
   _onConnect(dynamic data) {
+    kLogger.d("Signaling server connected");
     _ready.value = true;
     // send ready
     _signalingSocket.emit('ready', peerId);

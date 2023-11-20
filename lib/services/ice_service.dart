@@ -14,6 +14,7 @@
 
 import 'package:keta_peers/business/config/config.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
+import 'package:keta_peers/constants.dart';
 
 class IceConnection {
   late final MediaStream stream;
@@ -27,6 +28,7 @@ class IceConnection {
 Future<IceConnection> connectICEBackend() async {
   final mediaStream =
       await navigator.mediaDevices.getUserMedia({'audio': true, 'video': true});
+  kLogger.d('tracks: ${mediaStream.getTracks()}');
   final conn = await createPeerConnection({
     'iceServers': [
       {'urls': AppConfig.instance.stunServer}
