@@ -206,6 +206,7 @@ class SignalingClient {
       );
     }
     _toIdle();
+    iceConnection?.conn.setRemoteDescription(RTCSessionDescription(null, null));
   }
 
   void sendPayload(Payload payload, {String target = 'all'}) {

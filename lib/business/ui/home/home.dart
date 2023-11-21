@@ -69,6 +69,7 @@ class _ContactPageState extends State<ContactPage> {
                         ),
                         onPressed: () {
                           client.quitCalling();
+                          remoteRenderer.srcObject = null;
                         })
                   ],
                 )),
