@@ -42,7 +42,7 @@ Future<IceConnection> connectICEBackend(
       {
         'urls': AppConfig.instance.stunServer,
         'username': AppConfig.instance.stunUserName,
-        'password': AppConfig.instance.stunPassword
+        'credential': AppConfig.instance.stunPassword
       }
     ]
   });
