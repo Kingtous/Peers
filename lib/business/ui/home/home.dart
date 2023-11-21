@@ -46,14 +46,7 @@ class _ContactPageState extends State<ContactPage> {
 
   registerUiCallback() {
     client.onNewVideoCall = _onNewVideoCall;
-    client.iceConnection?.conn.onAddTrack = (stream, track) {
-      kLogger.d('got stream! ${track.id}');
-      if (stream != client.iceConnection!.stream) {
-        setState(() {
-          remoteRenderer.srcObject = stream;
-        });
-      }
-    };
+    client.onRemoteStream = _onRemoteStream;
   }
 
   @override
@@ -65,62 +58,57 @@ class _ContactPageState extends State<ContactPage> {
             appBar: NavigationAppBar(
                 title: const Text('通话中'),
                 actions: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     Button(
-                        child: const Text('挂断'),
+                        style: ButtonStyle(
+                            backgroundColor: ButtonState.all(Colors.red)),
+                        child: const Text(
+                          '挂断',
+                          style: TextStyle(color: Colors.white),
+                        ),
                         onPressed: () {
                           client.quitCalling();
                         })
                   ],
                 )),
-            content: Column(
+            content: Stack(
               children: [
-                Stack(
-                  children: [
-                    Column(
-                      children: [
-                        Expanded(
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: RTCVideoView(
-                                  remoteRenderer,
-                                  objectFit: RTCVideoViewObjectFit
-                                      .RTCVideoViewObjectFitCover,
-                                  placeholderBuilder: (context) {
-                                    return const Center(
-                                      child: SizedBox(
-                                        width: 100,
-                                        height: 100,
-                                        child: ProgressRing(),
-                                      ),
-                                    );
-                                  },
-                                ),
-                              ),
-                              Expanded(
-                                child: RTCVideoView(
-                                  remoteRenderer,
-                                  objectFit: RTCVideoViewObjectFit
-                                      .RTCVideoViewObjectFitCover,
-                                  placeholderBuilder: (context) {
-                                    return const Center(
-                                      child: SizedBox(
-                                        width: 100,
-                                        height: 100,
-                                        child: ProgressRing(),
-                                      ),
-                                    );
-                                  },
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    )
-                  ],
+                RTCVideoView(
+                  remoteRenderer,
+                  objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
+                  placeholderBuilder: (context) {
+                    return const Center(
+                      child: SizedBox(
+                        width: 100,
+                        height: 100,
+                        child: ProgressRing(),
+                      ),
+                    );
+                  },
                 ),
+                Positioned(
+                  right: 0,
+                  bottom: 0,
+                  child: Container(
+                    width: 300,
+                    height: 300,
+                    child: RTCVideoView(
+                      localRenderer,
+                      objectFit:
+                          RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
+                      placeholderBuilder: (context) {
+                        return const Center(
+                          child: SizedBox(
+                            width: 100,
+                            height: 100,
+                            child: ProgressRing(),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                )
               ],
             ),
           );
@@ -177,8 +165,10 @@ class _ContactPageState extends State<ContactPage> {
   }
 
   Future<bool> _onNewVideoCall(String peer) async {
+    kLogger.i('waiting for users');
     return (await showDialog<bool>(
             context: context,
+            barrierDismissible: false,
             builder: (context) {
               return ContentDialog(
                 title: const Text('邀请'),
@@ -198,5 +188,12 @@ class _ContactPageState extends State<ContactPage> {
               );
             })) ??
         false;
+  }
+
+  _onRemoteStream(MediaStream stream) {
+    kLogger.d("add remote stream: ${stream.id} ${stream.getTracks()}");
+    setState(() {
+      remoteRenderer.srcObject = stream;
+    });
   }
 }

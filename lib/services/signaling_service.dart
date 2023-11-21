@@ -51,6 +51,7 @@ class SignalingClient {
   /// UI callbacks
   Future<bool> Function(String peer)? onNewVideoCall;
   Future<bool> Function(String peer)? onNewVoiceCall;
+  Function(MediaStream)? onRemoteStream;
 
   Future<void> init(String peerId) async {
     this.peerId = peerId;
@@ -75,6 +76,7 @@ class SignalingClient {
         onIceCandidate: _onCandidate,
         onIceGatheringState: _onCandidateGatheringState);
     _iceConnection = conn;
+    conn.conn.onTrack = _onTrack;
     eventStream.listen(_eventListener);
   }
 
@@ -99,75 +101,75 @@ class SignalingClient {
     // if (evt.target == peerId) {
     //   return;
     // }
-    kLogger.d('eventListener: ${evt.payload?['type']}');
-    try {
-      final payload = Payload.fromJson(evt.payload);
-      switch (payload.type) {
-        case ActionType.voiceCall:
-          if (state.value != UserState.idle) {
-            sendPayload(Payload()
-              ..type = ActionType.answer
-              ..data = {'accept': false, 'reason': 'busy now'});
+    kLogger.d('eventListener: ${evt.payload?.type}');
+    final payload = evt.payload!;
+    switch (payload.type) {
+      case ActionType.videoCall:
+        if (state.value == UserState.videoCalling ||
+            state.value == UserState.videoCalling) {
+          sendPayload(
+              Payload()
+                ..type = ActionType.answer
+                ..data = {'accept': false, 'reason': 'busy now'},
+              target: evt.from);
+          return;
+        } else {
+          incomingCall = payload.data;
+          if (incomingCall == null) {
             return;
-          } else {
-            incomingCall = payload.data;
-            if (incomingCall == null) {
-              return;
-            }
-            state.value = UserState.videoIncoming;
-            final tmp = incomingCall!;
-            if (onNewVideoCall == null) {
-              acceptVideoCall(false, evt.from, null);
-            } else {
-              onNewVideoCall?.call(evt.from).then((acc) {
-                acceptVideoCall(acc, evt.from, tmp);
-              });
-            }
           }
-          break;
-        case ActionType.answer:
-          if (state.value == UserState.invitingVideo) {
-            if (payload.data?['accept'] == false) {
-              _toIdle();
-            } else if (payload.data?['accept'] == true) {
-              _toVideoCall(payload.data?['answer']);
-            } else {
-              _toIdle();
-            }
-          } else if (state.value == UserState.invitingVoice) {
-            // todo:
-            if (payload.data?['accept'] == false) {
-              _toIdle();
-            } else if (payload.data?['accept'] == true) {
-              // todo:
-              throw UnimplementedError();
-            } else {
-              _toIdle();
-            }
+          state.value = UserState.videoIncoming;
+          final tmp = incomingCall!;
+          if (onNewVideoCall == null) {
+            acceptVideoCall(false, evt.from, null);
           } else {
-            // ignore
+            onNewVideoCall?.call(evt.from).then((acc) {
+              acceptVideoCall(acc, evt.from, tmp);
+            });
           }
-          break;
-        case ActionType.quit:
-          if (incomingCall?['peerId'] == evt.from) {
+        }
+        break;
+      case ActionType.answer:
+        if (state.value == UserState.invitingVideo) {
+          if (payload.data?['accept'] == false) {
+            _toIdle();
+          } else if (payload.data?['accept'] == true) {
+            _toVideoCall(payload.data?['answer']);
+          } else {
             _toIdle();
           }
-          break;
-        default:
-          break;
-      }
-    } catch (e) {
-      //
+        } else if (state.value == UserState.invitingVoice) {
+          // todo:
+          if (payload.data?['accept'] == false) {
+            _toIdle();
+          } else if (payload.data?['accept'] == true) {
+            // todo:
+            throw UnimplementedError();
+          } else {
+            _toIdle();
+          }
+        } else {
+          // ignore
+        }
+        break;
+      case ActionType.quit:
+        if (incomingCall?['peerId'] == evt.from) {
+          _toIdle();
+        }
+        break;
+      default:
+        break;
     }
   }
 
   _toVideoCall(Map<String, dynamic> peerDesc) {
+    iceConnection!.conn.setRemoteDescription(RTCSessionDescription(
+        peerDesc['desc']['sdp'], peerDesc['desc']['type']));
     for (final candidate in peerDesc['candidates']) {
-      iceConnection?.conn.addCandidate(RTCIceCandidate(candidate['candidate'],
+      iceConnection!.conn.addCandidate(RTCIceCandidate(candidate['candidate'],
           candidate['sdpMid'], candidate['sdpMLineIndex']));
     }
-    iceConnection?.conn.setRemoteDescription(RTCSessionDescription(
-        peerDesc['desc']['sdp'], peerDesc['desc']['type']));
+    incomingCall = peerDesc;
     state.value = UserState.videoCalling;
   }
 
@@ -182,28 +184,28 @@ class SignalingClient {
     try {
       final evt = Event.fromJson(data);
       kLogger.d(
-          'recv ${evt.from}->${evt.target}: ${evt.payload?['type']}, current state: ${state.value}');
-      if (evt.target == 'all') {
+          'recv ${evt.from}->${evt.target}: ${evt.payload?.type}, current state: ${state.value}');
+      if (evt.target == 'all' || evt.from == "all") {
         // 先屏蔽掉，之后可能用得到
         kLogger.i('ignored this evt: ${evt.from}');
         return;
       }
       _eventSink.add(evt);
     } catch (e) {
-      kLogger.e('message parse error: $e');
+      kLogger.e('message parse error: $e, origin data: ${data}');
     }
   }
 
   void quitCalling() {
-    state.value = UserState.idle;
-    if (incomingCall == null) {
-      return;
+    if (incomingCall != null) {
+      sendPayload(
+        Payload()
+          ..type = ActionType.quit
+          ..data = {},
+        target: incomingCall!['peerId'],
+      );
     }
-    sendPayload(
-      Payload()..type = ActionType.quit,
-      target: incomingCall!['peerId'],
-    );
-    incomingCall = null;
+    _toIdle();
   }
 
   void sendPayload(Payload payload, {String target = 'all'}) {
@@ -212,7 +214,7 @@ class SignalingClient {
     } else {
       emitMessageToPeer(_signalingSocket, peerId, target, payload);
     }
-    // kLogger.d('sent -> $target :${payload.toJson()}');
+    kLogger.d('sent -> $target :${payload.type}');
   }
 
   void inviteVideoCall(String newPeerId) {
@@ -237,6 +239,7 @@ class SignalingClient {
   void acceptVideoCall(
       bool accept, String fromPeerId, Map<String, dynamic>? offerDesc) {
     if (!accept) {
+      kLogger.i("cancel this request from $fromPeerId");
       sendPayload(
           Payload()
             ..type = ActionType.answer
@@ -245,13 +248,16 @@ class SignalingClient {
       _toIdle();
       return;
     }
-    for (final candidate in offerDesc!['candidates']) {
+    kLogger.i("accepting video call from $fromPeerId");
+    // 设置为远端的candidate
+    kLogger.d(
+        'has set remote description and ${offerDesc?['candidates'].length} candidates.');
+    iceConnection!.conn.setRemoteDescription(RTCSessionDescription(
+        offerDesc!['offer']['sdp'], offerDesc['offer']['type']));
+    for (final candidate in offerDesc['candidates']) {
       iceConnection?.conn.addCandidate(RTCIceCandidate(candidate['candidate'],
           candidate['sdpMid'], candidate['sdpMLineIndex']));
     }
-    // 设置为远端的candidate
-    iceConnection!.conn.setRemoteDescription(RTCSessionDescription(
-        offerDesc['offer']['sdp'], offerDesc['offer']['type']));
     iceConnection!.createAnswer().then(
       (answer) {
         sendPayload(
@@ -284,6 +290,13 @@ class SignalingClient {
     kLogger.i("ice gathering: $candidate");
     if (candidate == RTCIceGatheringState.RTCIceGatheringStateComplete) {
       kLogger.i("candidates in local: $_candidates");
+    }
+  }
+
+  _onTrack(RTCTrackEvent event) {
+    kLogger.d("track event: ${event.track.kind}");
+    if (event.track.kind == "video") {
+      onRemoteStream?.call(event.streams[0]);
     }
   }
 }

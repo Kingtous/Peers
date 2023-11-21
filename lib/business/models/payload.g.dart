@@ -27,7 +27,9 @@ const _$ActionTypeEnumMap = {
 Event _$EventFromJson(Map<String, dynamic> json) => Event()
   ..from = json['from'] as String
   ..target = json['target'] as String
-  ..payload = json['payload'];
+  ..payload = json['payload'] == null
+      ? null
+      : Payload.fromJson(json['payload'] as Map<String, dynamic>);
 
 Map<String, dynamic> _$EventToJson(Event instance) => <String, dynamic>{
       'from': instance.from,

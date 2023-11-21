@@ -47,7 +47,7 @@ class Payload {
 class Event {
   late String from;
   late String target;
-  dynamic payload;
+  Payload? payload;
 
   Map<String, dynamic> toJson() {
     return _$EventToJson(this);
@@ -58,15 +58,15 @@ class Event {
   }
 }
 
-Map<String, dynamic> buildPayload(String from, String target, Payload payload) {
+Map<String, dynamic> buildEvent(String from, String target, Payload payload) {
   return {'from': from, 'target': target, 'payload': payload.toJson()};
 }
 
 void emitMessageToPeer(
     Socket emitter, String from, String target, Payload payload) {
-  emitter.emit('messageOne', buildPayload(from, target, payload));
+  emitter.emit('messageOne', buildEvent(from, target, payload));
 }
 
 void emitBroadcastMessage(Socket emitter, String from, Payload payload) {
-  emitter.emit('message', buildPayload(from, 'all', payload));
+  emitter.emit('message', buildEvent(from, 'all', payload));
 }
