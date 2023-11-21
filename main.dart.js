@@ -25387,7 +25387,7 @@ o===$&&A.b()
 n=$.a3f.bx().c
 n===$&&A.b()
 s=4
-return A.W(k.DF(A.a4(["iceServers",A.a([A.a4(["urls",p,"username",o,"password",n],j,j)],t.m0)],j,i),null),$async$FR)
+return A.W(k.DF(A.a4(["iceServers",A.a([A.a4(["urls",p,"username",o,"credential",n],j,j)],t.m0)],j,i),null),$async$FR)
 case 4:m=d
 B.b.a5(h.zc(0),new A.auB(m,h))
 s=5
