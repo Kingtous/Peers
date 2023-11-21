@@ -17,7 +17,9 @@ import 'package:keta_peers/business/ui/home/index.dart';
 import 'package:keta_peers/main.dart';
 import 'package:logger/logger.dart';
 
-const kDefaultStunServer = "stun:peers.signaling.ketanetwork.cc:3478";
+const kDefaultStunServer = "turn:stun.ketanetwork.cc:3478";
+const kDefaultStunUser = "test";
+const kDefaultStunPassword = "test";
 const kDefaultSignalingServer = "https://peers.signaling.ketanetwork.cc";
 const kPageIndex = '/index';
 const kPageHome = '/home';

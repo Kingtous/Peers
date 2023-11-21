@@ -29,6 +29,12 @@ class AppConfig {
   @JsonKey(name: 'stun_server', defaultValue: kDefaultStunServer)
   late String stunServer;
 
+  @JsonKey(name: 'stun_user', defaultValue: kDefaultStunUser)
+  late String stunUserName;
+
+  @JsonKey(name: 'stun_pwd', defaultValue: kDefaultStunPassword)
+  late String stunPassword;
+
   static late AppConfig _config;
   static AppConfig get instance => _config;
   static Future<void> init() async {

@@ -39,7 +39,11 @@ Future<IceConnection> connectICEBackend(
   kLogger.d('tracks: ${mediaStream.getTracks()}');
   final conn = await createPeerConnection({
     'iceServers': [
-      {'urls': AppConfig.instance.stunServer}
+      {
+        'urls': AppConfig.instance.stunServer,
+        'username': AppConfig.instance.stunUserName,
+        'password': AppConfig.instance.stunPassword
+      }
     ]
   });
   mediaStream.getTracks().forEach((track) {
