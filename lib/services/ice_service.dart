@@ -17,15 +17,23 @@ import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:keta_peers/constants.dart';
 
 class IceConnection {
+  late final RTCPeerConnection conn;
   late final MediaStream stream;
   late final RTCSessionDescription localDesc;
 
   void dispose() {
     stream.dispose();
   }
+
+  Future<RTCSessionDescription> createAnswer() async {
+    final desc = conn.createAnswer();
+    return desc;
+  }
 }
 
-Future<IceConnection> connectICEBackend() async {
+Future<IceConnection> connectICEBackend(
+    {Function(RTCIceCandidate candidate)? onIceCandidate,
+    Function(RTCIceGatheringState candidate)? onIceGatheringState}) async {
   final mediaStream =
       await navigator.mediaDevices.getUserMedia({'audio': true, 'video': true});
   kLogger.d('tracks: ${mediaStream.getTracks()}');
@@ -34,10 +42,17 @@ Future<IceConnection> connectICEBackend() async {
       {'urls': AppConfig.instance.stunServer}
     ]
   });
+  mediaStream.getTracks().forEach((track) {
+    conn.addTrack(track, mediaStream);
+  });
   final desc = await conn
       .createOffer({'offerToReceiveVideo': true, 'offerToReceiveAudio': true});
   conn.setLocalDescription(desc);
+  conn.onIceCandidate = onIceCandidate;
+  conn.onIceGatheringState = onIceGatheringState;
+
   return IceConnection()
+    ..conn = conn
     ..stream = mediaStream
     ..localDesc = desc;
 }

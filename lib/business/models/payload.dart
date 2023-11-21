@@ -26,6 +26,9 @@ enum ActionType {
   answer,
 }
 
+const kEventMessageSinglePeer = 'messageOne';
+const kEventMessageBroadcast = 'message';
+
 @JsonSerializable()
 class Payload {
   late ActionType type;

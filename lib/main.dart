@@ -1,6 +1,3 @@
-import 'package:flutter_webrtc/flutter_webrtc.dart';
-import 'package:keta_peers/base/services/webrtc.dart';
-import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:keta_peers/constants.dart';
 import 'package:keta_peers/services.dart';
@@ -54,7 +51,7 @@ class _WelcomePageState extends State<WelcomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
+    return const Center(
         child: Column(
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.center,

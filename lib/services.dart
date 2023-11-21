@@ -16,7 +16,6 @@ import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:keta_peers/business/config/config.dart';
 import 'package:keta_peers/constants.dart';
-import 'package:keta_peers/services/signaling_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 final it = GetIt.instance;

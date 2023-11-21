@@ -43,7 +43,7 @@ class _IndexPageState extends State<IndexPage> {
               )),
             ],
           ),
-          TextButton(onPressed: toggleLogin, child: Text('login'))
+          TextButton(onPressed: toggleLogin, child: const Text('login'))
         ],
       ),
     );
