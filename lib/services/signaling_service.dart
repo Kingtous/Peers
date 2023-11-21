@@ -260,6 +260,8 @@ class SignalingClient {
     }
     iceConnection!.createAnswer().then(
       (answer) {
+        // 给自己也设置一下
+        iceConnection?.conn.setLocalDescription(answer);
         sendPayload(
             Payload()
               ..type = ActionType.answer

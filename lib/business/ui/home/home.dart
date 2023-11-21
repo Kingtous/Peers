@@ -74,18 +74,22 @@ class _ContactPageState extends State<ContactPage> {
                 )),
             content: Stack(
               children: [
-                RTCVideoView(
-                  remoteRenderer,
-                  objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
-                  placeholderBuilder: (context) {
-                    return const Center(
-                      child: SizedBox(
-                        width: 100,
-                        height: 100,
-                        child: ProgressRing(),
-                      ),
-                    );
-                  },
+                Container(
+                  decoration: BoxDecoration(color: Colors.black),
+                  child: RTCVideoView(
+                    remoteRenderer,
+                    objectFit:
+                        RTCVideoViewObjectFit.RTCVideoViewObjectFitContain,
+                    placeholderBuilder: (context) {
+                      return const Center(
+                        child: SizedBox(
+                          width: 100,
+                          height: 100,
+                          child: ProgressRing(),
+                        ),
+                      );
+                    },
+                  ),
                 ),
                 Positioned(
                   right: 0,
@@ -93,10 +97,11 @@ class _ContactPageState extends State<ContactPage> {
                   child: Container(
                     width: 300,
                     height: 300,
+                    decoration: BoxDecoration(color: Colors.black),
                     child: RTCVideoView(
                       localRenderer,
                       objectFit:
-                          RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
+                          RTCVideoViewObjectFit.RTCVideoViewObjectFitContain,
                       placeholderBuilder: (context) {
                         return const Center(
                           child: SizedBox(
