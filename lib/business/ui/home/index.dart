@@ -13,11 +13,12 @@
 // limitations under the License.
 
 import 'package:fluent_ui/fluent_ui.dart';
-import 'package:flutter/material.dart';
+// import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:keta_peers/constants.dart';
 import 'package:keta_peers/services.dart';
 import 'package:keta_peers/services/signaling_service.dart';
+import 'package:lottie/lottie.dart';
 
 class IndexPage extends StatefulWidget {
   const IndexPage({super.key});
@@ -30,20 +31,57 @@ class _IndexPageState extends State<IndexPage> {
   String id = "";
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Column(
+    return Container(
+      decoration: BoxDecoration(color: Colors.blue),
+      child: Row(
         children: [
-          Row(
-            children: [
-              Expanded(child: TextBox(
-                onChanged: (text) {
-                  id = text;
-                },
+          Flexible(
+              flex: 2,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        kAppName,
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 36.0,
+                            fontWeight: FontWeight.w500),
+                      ),
+                      SizedBox(
+                          height: 300,
+                          width: 300,
+                          child: LottieBuilder.asset(
+                              'assets/animations/login.json'))
+                    ],
+                  ),
+                ],
               )),
-            ],
+          Flexible(
+            flex: 2,
+            child: Container(
+              decoration: BoxDecoration(color: Colors.blue),
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Column(
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(child: TextBox(
+                          onChanged: (text) {
+                            id = text;
+                          },
+                        )),
+                      ],
+                    ),
+                    Button(onPressed: toggleLogin, child: const Text('login'))
+                  ],
+                ),
+              ),
+            ),
           ),
-          TextButton(onPressed: toggleLogin, child: const Text('login'))
         ],
       ),
     );

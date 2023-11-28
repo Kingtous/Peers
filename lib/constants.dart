@@ -23,6 +23,7 @@ const kDefaultStunPassword = "test";
 const kDefaultSignalingServer = "https://peers.signaling.ketanetwork.cc";
 const kPageIndex = '/index';
 const kPageHome = '/home';
+const kAppName = 'Peers';
 final kLogger = Logger();
 final kRoutes = GoRouter(routes: <GoRoute>[
   GoRoute(
