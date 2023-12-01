@@ -22,7 +22,9 @@ class IceConnection {
   late final RTCSessionDescription localDesc;
 
   void dispose() {
+    conn.removeStream(stream);
     stream.dispose();
+    conn.dispose();
   }
 
   Future<RTCSessionDescription> createAnswer() async {

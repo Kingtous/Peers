@@ -15,6 +15,8 @@ import 'package:go_router/go_router.dart';
 import 'package:keta_peers/business/ui/home/home.dart';
 import 'package:keta_peers/business/ui/home/index.dart';
 import 'package:keta_peers/main.dart';
+import 'package:keta_peers/services.dart';
+import 'package:keta_peers/services/signaling_service.dart';
 import 'package:logger/logger.dart';
 
 const kDefaultStunServer = "turn:stun.ketanetwork.cc:3478";
@@ -28,7 +30,7 @@ final kLogger = Logger();
 final kRoutes = GoRouter(routes: <GoRoute>[
   GoRoute(
     path: '/',
-    builder: (context, state) => const WelcomePage(title: 'Peers'),
+    builder: (context, state) => const WelcomePage(),
   ),
   GoRoute(
     path: kPageIndex,
@@ -36,6 +38,12 @@ final kRoutes = GoRouter(routes: <GoRoute>[
   ),
   GoRoute(
     path: kPageHome,
-    builder: (context, state) => const ContactPage(),
+    builder: (context, state) {
+      if (it.isRegistered<SignalingClient>()) {
+        return const ContactPage();
+      } else {
+        return const WelcomePage();
+      }
+    },
   ),
 ]);

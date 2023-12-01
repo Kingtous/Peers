@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import 'package:fluent_ui/fluent_ui.dart';
+import 'package:get/get.dart';
 // import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:keta_peers/constants.dart';
@@ -29,6 +30,9 @@ class IndexPage extends StatefulWidget {
 
 class _IndexPageState extends State<IndexPage> {
   String id = "";
+  var connecting = false.obs;
+  final client = SignalingClient();
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -43,7 +47,7 @@ class _IndexPageState extends State<IndexPage> {
                   Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text(
+                      const Text(
                         kAppName,
                         style: TextStyle(
                             color: Colors.white,
@@ -66,17 +70,51 @@ class _IndexPageState extends State<IndexPage> {
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Row(
-                      children: [
-                        Expanded(child: TextBox(
-                          onChanged: (text) {
-                            id = text;
-                          },
-                        )),
-                      ],
-                    ),
-                    Button(onPressed: toggleLogin, child: const Text('login'))
+                    Container(
+                      padding: const EdgeInsets.all(16.0),
+                      margin: const EdgeInsets.all(12.0),
+                      decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(12.0)),
+                      child: Column(
+                        children: [
+                          const Text(
+                            'Login to Peers',
+                            style: TextStyle(fontSize: 24),
+                          ),
+                          const SizedBox(
+                            height: 8.0,
+                          ),
+                          Row(
+                            children: [
+                              Expanded(
+                                  child: TextBox(
+                                placeholder: 'any name here.',
+                                onChanged: (text) {
+                                  id = text;
+                                },
+                              )),
+                            ],
+                          ),
+                          const SizedBox(
+                            height: 8.0,
+                          ),
+                          Obx(() => connecting.value
+                              ? const Text('Connecting')
+                              : Button(
+                                  style: ButtonStyle(
+                                      backgroundColor:
+                                          ButtonState.all(Colors.blue)),
+                                  onPressed: toggleLogin,
+                                  child: const Text(
+                                    'login',
+                                    style: TextStyle(color: Colors.white),
+                                  )))
+                        ],
+                      ),
+                    )
                   ],
                 ),
               ),
@@ -88,7 +126,7 @@ class _IndexPageState extends State<IndexPage> {
   }
 
   toggleLogin() async {
-    final client = SignalingClient();
+    connecting.value = true;
     await client.init(id);
     if (client.ready.value) {
       onContextReady(client);

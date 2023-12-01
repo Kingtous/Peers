@@ -44,6 +44,7 @@ class SignalingClient {
   late Stream<Event> eventStream;
   late Rx<UserState> state;
   Map<String, dynamic>? incomingCall;
+  Rx<String> remotePeerId = "".obs;
 
   /// Candidates of local
   final List<RTCIceCandidate> _candidates = [];
@@ -81,8 +82,12 @@ class SignalingClient {
   }
 
   void dispose() {
+    kLogger.i('disposing signaling client');
     _iceConnection?.dispose();
-    _signalingSocket.close();
+    _signalingSocket.disconnect();
+    Future.delayed(const Duration(milliseconds: 300), () {
+      _signalingSocket.close();
+    });
   }
 
   _onConnect(dynamic data) {
@@ -192,7 +197,7 @@ class SignalingClient {
       }
       _eventSink.add(evt);
     } catch (e) {
-      kLogger.e('message parse error: $e, origin data: ${data}');
+      kLogger.e('message parse error: $e, origin data: $data');
     }
   }
 
@@ -206,7 +211,10 @@ class SignalingClient {
       );
     }
     _toIdle();
-    iceConnection?.conn.setRemoteDescription(RTCSessionDescription(null, null));
+    for (final stream
+        in iceConnection?.conn.getRemoteStreams() ?? <MediaStream>[]) {
+      stream?.dispose();
+    }
   }
 
   void sendPayload(Payload payload, {String target = 'all'}) {
@@ -235,6 +243,10 @@ class SignalingClient {
           },
         target: newPeerId);
     state.value = UserState.invitingVideo;
+    remotePeerId.value = newPeerId;
+    incomingCall = {
+      "peerId": newPeerId,
+    };
   }
 
   void acceptVideoCall(
