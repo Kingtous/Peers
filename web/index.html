@@ -38,8 +38,26 @@
   </script>
   <!-- This script adds the flutter initialization JS code -->
   <script src="flutter.js" defer></script>
+  <script src="https://cdn.bootcdn.net/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
 </head>
 <body>
+  <div style="display: flex; width: 100%; height: 100%; flex-direction: column;  align-items: center;">
+    <div style="height: 8rem;"></div>
+    <div>Peers is loading, please wait a little bit.</div>
+    <div id="loading" style="height: 12rem; width: 12rem; align-items: center;"></div>
+  </div>
+  
+  <script>
+    lottie.loadAnimation({
+      container: document.getElementById('loading'), // the dom element that will contain the animation
+      renderer: 'svg',
+      loop: true,
+      autoplay: true,
+      height: 150,
+      width: 150,
+      path: 'login.json' // the path to the animation json
+    });
+  </script>
   <script>
     window.addEventListener('load', function(ev) {
       // Download main.dart.js
