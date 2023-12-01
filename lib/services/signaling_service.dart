@@ -159,7 +159,7 @@ class SignalingClient {
         break;
       case ActionType.quit:
         if (incomingCall?['peerId'] == evt.from) {
-          _toIdle();
+          quitCalling();
         }
         break;
       default:
@@ -209,6 +209,7 @@ class SignalingClient {
           ..data = {},
         target: incomingCall!['peerId'],
       );
+      incomingCall = null;
     }
     _toIdle();
     for (final stream
