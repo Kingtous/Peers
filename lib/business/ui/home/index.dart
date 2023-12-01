@@ -91,7 +91,7 @@ class _IndexPageState extends State<IndexPage> {
                             children: [
                               Expanded(
                                   child: TextBox(
-                                placeholder: 'any name here.',
+                                placeholder: 'Any name here.',
                                 onChanged: (text) {
                                   id = text;
                                 },
