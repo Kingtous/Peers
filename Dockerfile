@@ -9,7 +9,7 @@ COPY . .
 
 # 获取Flutter依赖并构建Flutter Web项目
 RUN flutter pub get
-RUN flutter build web
+RUN flutter build web --release
 
 # 使用Nginx镜像作为新的基础镜像
 FROM nginx:alpine
@@ -18,7 +18,7 @@ FROM nginx:alpine
 COPY --from=builder /app/build/web /usr/share/nginx/html
 
 # 复制Nginx配置文件到Nginx配置目录
-COPY nginx.conf /etc/nginx/nginx.conf
+# COPY nginx.conf /etc/nginx/nginx.conf
 
 # 暴露端口80
 EXPOSE 80
