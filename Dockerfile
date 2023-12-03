@@ -1,11 +1,9 @@
-FROM bitnami/git:latest as builder
+FROM bitnami/git:2.39.2 as builder
 LABEL maintainer="kingtous"
 
-WORKDIR /app
+WORKDIR /
 
-COPY ./.git .
-RUN git config core.worktree .
-RUN git checkout gh-pages
+RUN git clone https://github.com/kingtous/peers.git --branch gh-pages --depth=1 app
 
 # 使用Nginx镜像作为新的基础镜像
 FROM nginx:alpine
