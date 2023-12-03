@@ -4,7 +4,7 @@ LABEL maintainer="kingtous"
 WORKDIR /app
 
 COPY ./.git .
-RUN git config core.worktree /app
+RUN git config core.worktree .
 RUN git checkout gh-pages
 
 # 使用Nginx镜像作为新的基础镜像
